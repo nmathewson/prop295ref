@@ -6,7 +6,7 @@ from hashlib import shake_256
 def kdf(secret_input, length):
     """Derive a length-byte key sequence from the 'secret-input'.
 
-       Here we use shake256 in preference to HKDF for speed
+       Here we use SHAKE256 in preference to HKDF for speed
        and simplicity.
     """
     d = shake_256()

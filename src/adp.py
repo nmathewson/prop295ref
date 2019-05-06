@@ -9,6 +9,10 @@
 
     - I used AES-256 instead of AES-128.
 
+    - There are two instances of each T' value -- one for each
+      direction. I think this is the intention of the original
+      proposal
+
     - Since cells can be sent to any circuit on the relay, I replaced
       the idea of T'_{n+1} with T'_n_auth.  Every relay has to have one,
       not just the last relay.
@@ -27,8 +31,9 @@
 
   To run this:
 
-    - You will need the Cryptodome python package, installed as
-      "Cryptodome".  (Regular pycrypto doesn't provide 
+    - You will need the PyCryptodome python package, installed as
+      "Cryptodome".  (Regular pycrypto doesn't provide ghash or a
+      reasonable counter mode.)
 
 """
 
@@ -40,26 +45,15 @@ from kdf import *
 # block_crypt, stream_crypt, and digestfn are defined below, but you can
 # ignore them.  They aren't what we actually want to use.
 
-def derive_nonce(key, encrypt, tweak, nonce):
-    """ Compute a new nonce based on:
-
-        key -- a block cipher key.
-        encrypt -- a boolean.  True for encrypt, False for decrypt.
-        tweak -- a value of T.
-        nonce -- the old nonce.
-    """
-    return xor(tweak, block_crypt(key, xor(tweak, nonce), encrypt=encrypt))
-
 class LayerKeys(object):
     """Stores one half the keys for a given layer.  The origin shares two
        of these with each hop in its circuit, one for each direction.
 
        These keys are immutable over the lifetime of a circuit.
 
-         kt -- a block cipher key
-         kh -- a hash key.
-
-         k -- a stream cipher key.
+         kt -- a block cipher key used for tweaked encryption of nonce.
+         kh -- a hash key used for ghash.
+         k -- a stream cipher key used for AES-CTR.
     """
     @staticmethod
     def from_kdf(kdf):
@@ -82,7 +76,11 @@ class LayerState(object):
        origin shares two of these with each hop in its circuit, one for
        each direction.  It changes with every processed cell.
 
-       initial_tprime -- a tweak value
+       The origin also shares a separate LayerState with each hop that
+       needs to process authentication to see whether a cell is
+       intended for it.
+
+       tprime -- a current tweak value, corresponding to T' in prop295.
     """
     @staticmethod
     def new():
