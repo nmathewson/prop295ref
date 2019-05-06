@@ -1,0 +1,7 @@
+This is a reference implementation for the version of Tor proposal 295
+as updated on March 1 2019.
+
+It is not intended for security or performance, but rather to help
+understand and clarify the proposal.
+
+You will need Python >= 3.6 and the PyCryptodome library.
