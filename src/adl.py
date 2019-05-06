@@ -11,23 +11,16 @@
 
     - There are two instances of each T' value -- one for each
       direction. I think this is the intention of the original
-      proposal
+      proposal.
 
     - Since cells can be sent to any circuit on the relay, I replaced
-      the idea of T'_{n+1} with T'_n_auth.  Every relay has to have one,
+      the idea of T'_{n+1} with Ta'_{n}.  Every relay has to have one,
       not just the last relay.
 
     - Similarly, the assignment for T'_n_auth needs to be conditional,
       I think.
 
     - I dropped the "Recognized" field entirely.
-
-  Additional notes:
-
-    - I did not carefully follow all the +1 and -1 subscripts in the
-      description, but rather used what I thought was intended.  If
-      there are any bugs in the description, I won't have caught them
-      with this.
 
   To run this:
 
@@ -41,9 +34,6 @@ from consts import *
 from util import *
 from aesgcm import *
 from kdf import *
-
-# block_crypt, stream_crypt, and digestfn are defined below, but you can
-# ignore them.  They aren't what we actually want to use.
 
 class LayerKeys(object):
     """Stores one half the keys for a given layer.  The origin shares two
